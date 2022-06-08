@@ -1,12 +1,21 @@
 import Link from "next/link";
+import { signIn, signOut, useSession } from "next-auth/react";
 
 function Navbar() {
+  const { data: session, status } = useSession();
+
+  console.log(session);
+
   return (
     <nav className="header">
       <h1 className="logo">
         <a href="#">NextAuth</a>
       </h1>
-      <ul className="main-nav">
+      <ul
+        className={`main-nav ${
+          !session && status === "loading" ? "loading" : "loaded"
+        }`}
+      >
         <li>
           <Link href="/">
             <a>Home</a>
@@ -22,13 +31,34 @@ function Navbar() {
             <a>Blog</a>
           </Link>
         </li>
-
-        <li>
-          <a href="#">Sign In</a>
-        </li>
-        <li>
-          <a href="#">Sign Out</a>
-        </li>
+        {status === "unauthenticated" && (
+          <li>
+            <Link href="/api/auth/signin">
+              <a
+                onClick={(e) => {
+                  e.preventDefault();
+                  signIn();
+                }}
+              >
+                Sign In
+              </a>
+            </Link>
+          </li>
+        )}
+        {status === "authenticated" && (
+          <li>
+            <Link href="/api/auth/signout">
+              <a
+                onClick={(e) => {
+                  e.preventDefault();
+                  signOut();
+                }}
+              >
+                Sign Out
+              </a>
+            </Link>
+          </li>
+        )}
       </ul>
     </nav>
   );
